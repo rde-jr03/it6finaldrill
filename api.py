@@ -94,7 +94,7 @@ def add_orders():
                 (orderNumber, orderDate, requiredDate, shippedDate, status, comments, customerNumber))
     mysql.connection.commit()
     rows_affected = cur.rowcount
-    cur.close
+    cur.close()
     return make_response(jsonify({"message": "order added succesfully", "rows_affected":rows_affected}), 201)
 
 #UPDATE
@@ -120,10 +120,20 @@ def update_orders(orderNumber):
                 )
     mysql.connection.commit()
     rows_affected = cur.rowcount
-    cur.close
+    cur.close()
     return make_response(jsonify({"message": "order updated succesfully", "rows_affected":rows_affected}), 200)
 
 
+#DELETE
+@app.route("/orders/<int:id>", methods=["DELETE"])
+@auth.login_required
+def delete_order(id):
+    cur = mysql.connection.cursor()
+    cur.execute("""DELETE FROM orders where orderNumber =%s""", (id,))
+    mysql.connection.commit()
+    rows_affected = cur.rowcount
+    cur.close()
+    return make_response(jsonify({"message": "order deleted succesfully", "rows_affected":rows_affected}), 200)
 
 #function to fetch data
 def data_fetch(query):
