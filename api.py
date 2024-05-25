@@ -70,6 +70,33 @@ def get_order_details(id):
                       where orders.orderNumber = 10100;""".format(id))
     return make_response(jsonify(data), 200)
 
+#add
+@app.route("/orders", methods=["POST"])
+@auth.login_required
+def add_orders():
+    if not request.is_json:
+        abort(400, description="Your request must be in JSON format.")
+    cur = mysql.connection.cursor()
+    info = request.get_json()
+    orderNumber = info.get("orderNumber")
+    orderDate = info.get("orderDate")
+    requiredDate = info.get("requiredDate")
+    shippedDate = info.get("shippedDate")
+    status = info.get("status")
+    comments = info.get("comments")
+    customerNumber = info.get("customerNumber")
+
+    if not all([orderNumber, orderDate, requiredDate, shippedDate, status, comments, customerNumber]):
+        abort(400, description="Missing required field in JSON format.")
+
+    cur.execute("""INSERT INTO orders (orderNumber, orderDate, requiredDate, shippedDate, status, comments, customerNumber) 
+                VALUES (%s, %s, %s, %s, %s, %s, %s)""", 
+                (orderNumber, orderDate, requiredDate, shippedDate, status, comments, customerNumber))
+    mysql.connection.commit()
+    rows_affected = cur.rowcount
+    cur.close
+    return make_response(jsonify({"message": "order added succesfully", "rows_affected":rows_affected}), 201)
+
 
 
 #function to fetch data
