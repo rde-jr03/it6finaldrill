@@ -54,6 +54,13 @@ def get_employee():
     data = data_fetch("""select * from employees""")
     return make_response(jsonify(data), 200)
 
+#Get employee by id
+@app.route("/employees/<int:id>", methods=["GET"])
+@auth.login_required
+def get_employee_by_id(id):
+    data = data_fetch("""select * from employees where employeeNumber = {}""".format(id))
+    return make_response(jsonify(data), 200)
+
 #function to fetch data
 def data_fetch(query):
     cur = mysql.connection.cursor()
