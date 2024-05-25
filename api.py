@@ -61,6 +61,17 @@ def get_employee_by_id(id):
     data = data_fetch("""select * from employees where employeeNumber = {}""".format(id))
     return make_response(jsonify(data), 200)
 
+#inner join
+@app.route("/order/<int:id>/orderdetails", methods=["GET"])
+@auth.login_required
+def get_order_details(id):
+    data = data_fetch(""" select orders.orderNumber, orderdetails.quantityOrdered
+                      from orders inner join orderdetails on orders.orderNumber = orderdetails.orderNumber 
+                      where orders.orderNumber = 10100;""".format(id))
+    return make_response(jsonify(data), 200)
+
+
+
 #function to fetch data
 def data_fetch(query):
     cur = mysql.connection.cursor()
