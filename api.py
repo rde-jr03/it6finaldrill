@@ -97,6 +97,32 @@ def add_orders():
     cur.close
     return make_response(jsonify({"message": "order added succesfully", "rows_affected":rows_affected}), 201)
 
+#UPDATE
+@app.route("/orders/<int:orderNumber>", methods=["PUT"])
+@auth.login_required
+def update_orders(orderNumber):
+    if not request.is_json:
+        abort(400, description="Your request must be in JSON format.")
+    cur = mysql.connection.cursor()
+    info = request.get_json()
+    orderDate = info.get("orderDate")
+    requiredDate = info.get("requiredDate")
+    shippedDate = info.get("shippedDate")
+    status = info.get("status")
+    comments = info.get("comments")
+    customerNumber = info.get("customerNumber")
+
+    if not all([orderDate, requiredDate, shippedDate, status, comments, customerNumber]):
+        abort(400, description="No data provided to update.")
+
+    cur.execute("""UPDATE orders SET orderDate = %s, requiredDate = %s, shippedDate = %s, status = %s, comments = %s, customerNumber = %s WHERE orderNumber = %s """, 
+                (orderDate, requiredDate, shippedDate, status, comments, customerNumber, orderNumber),
+                )
+    mysql.connection.commit()
+    rows_affected = cur.rowcount
+    cur.close
+    return make_response(jsonify({"message": "order updated succesfully", "rows_affected":rows_affected}), 200)
+
 
 
 #function to fetch data
