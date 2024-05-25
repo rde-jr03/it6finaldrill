@@ -40,14 +40,27 @@ def format_response(data):
 def protected_resource():
     return jsonify({"message": "You are authorized to access this information"})
 
-
 #Hello World!
 @app.route("/")
+@auth.login_required
 def hello_world():
     return "<p>Hello, World!</p>"
 
 
+#CREATE
+@app.route("/employees", methods=["GET"])
+@auth.login_required
+def get_employee():
+    data = data_fetch("""select * from employees""")
+    return make_response(jsonify(data), 200)
 
+#function to fetch data
+def data_fetch(query):
+    cur = mysql.connection.cursor()
+    cur.execute(query)
+    data = cur.fetchall()
+    cur.close()
+    return data
 
 if __name__ == "__main__":
     app.run(debug=True)
